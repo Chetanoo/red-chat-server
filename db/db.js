@@ -4,8 +4,10 @@ const logger = require('../logger/logger');
 
 async function connectDb() {
   try {
-    await mongoose.connect(`${dbConfig.URI}${dbConfig.dbName}`);
+    await mongoose.connect(`${dbConfig.URI}${dbConfig.dbName}`)
+      .then(() => logger.info('connected to mongodb'));
   } catch (e) {
+    Error(e);
     logger.error(e);
   }
 }
