@@ -1,6 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+
 const cookieSession = require('cookie-session');
 
 const indexRouter = require('./routes/index');
@@ -18,6 +21,8 @@ app.use(cookieSession({
 
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
 }));
+
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

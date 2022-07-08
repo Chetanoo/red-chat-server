@@ -12,6 +12,8 @@
     },
     "rules": {
         "consistent-return": "off",
-        "no-underscore-dangle": "off"
+        "no-underscore-dangle": "off",
+        "no-useless-return": "off",
+        "new-cap": "off"
     }
 }

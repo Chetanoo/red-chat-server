@@ -8,13 +8,25 @@ const authRouter = express.Router();
 authRouter.post(
   '/signup',
   [
-    body('username').exists()
+    body('username')
+      .exists()
+      .not()
+      .isEmpty()
+      .trim()
       .withMessage('Username is required')
+      .bail()
+      .isLength({ min: 1, max: 99 })
+      .withMessage('Username has to be at least 1 symbol')
       .bail()
       .custom((value) => checkDuplicates.email(value))
       .withMessage('Username already in use'),
     body('email')
-      .exists().withMessage('Email is required')
+      .exists()
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage('Email is required')
+      .bail()
       .isEmail()
       .withMessage('Invalid email')
       .bail()
@@ -27,7 +39,26 @@ authRouter.post(
   ],
   authController.signUp,
 );
-authRouter.post('/signin', authController.singIn);
-authRouter.post('/logout', authController.logout);
+authRouter.post(
+  '/signin',
+  [
+    body('email')
+      .exists()
+      .not()
+      .isEmpty()
+      .trim()
+      .withMessage('Email is required')
+      .bail()
+      .isEmail()
+      .withMessage('Invalid email'),
+    body('password')
+      .exists()
+      .not()
+      .isEmpty()
+      .withMessage('Password is required'),
+  ],
+  authController.singIn,
+);
+authRouter.get('/logout', authController.logout);
 
 module.exports = authRouter;

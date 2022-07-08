@@ -1,11 +1,11 @@
 const { isEmail } = require('validator');
 
-const mongoose = require('mongoose');
+const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
 const logger = require('../logger/logger');
 const authConfig = require('../configs/auth.config');
 
-const userSchema = mongoose.Schema({
+const userSchema = Schema({
   username: {
     type: String,
     required: [true, 'Username is required.'],
@@ -30,14 +30,7 @@ userSchema.pre('save', async function save(next) {
     return next();
   }
   try {
-    await bcrypt.hash(user.password, authConfig.HASH_ROUNDS, (err, hash) => {
-      if (err) {
-        logger.error(err);
-        next(err);
-      }
-      user.password = hash;
-      user.save();
-    });
+    user.password = await bcrypt.hash(user.password, authConfig.HASH_ROUNDS);
   } catch (err) {
     logger.error(err);
     next(err);
@@ -49,6 +42,6 @@ userSchema.on('error', (error, next) => {
   next();
 });
 
-const User = mongoose.model('User', userSchema);
+const User = model('User', userSchema);
 
 module.exports = User;
