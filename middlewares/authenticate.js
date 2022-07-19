@@ -3,8 +3,9 @@ const jwtConfig = require('../configs/jwt.config');
 const logger = require('../logger/logger');
 
 async function authenticate(req, res, next) {
-  if (req.session && req.session.token) {
-    await jwt.verify(req.session.token, jwtConfig.secret, (error, decoded) => {
+  const token = req.headers?.authorization;
+  if (token) {
+    await jwt.verify(token, jwtConfig.secret, (error, decoded) => {
       if (error) {
         logger.error(error);
         const { message } = error;

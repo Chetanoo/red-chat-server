@@ -6,9 +6,9 @@ const JwtHelpers = require('../JWT/JWT');
 const logger = require('../logger/logger');
 const authConfig = require('../configs/auth.config');
 
-authController.signUp = async (req, res) => {
+authController.register = async (req, res) => {
   const {
-    username, email, password, remember,
+    username, email, password, rememberMe,
   } = req.body;
 
   const errors = validationResult(req);
@@ -21,17 +21,20 @@ authController.signUp = async (req, res) => {
 
   await user.save();
 
-  const expiresIn = remember ? authConfig.prolongedExpiresIn : authConfig.expiresIn;
+  const expiresIn = rememberMe ? authConfig.prolongedExpiresIn : authConfig.expiresIn;
 
   logger.info(`User created ${user}`);
   const { _id: id, username: name, email: mail } = user;
-  req.session.token = await JwtHelpers.generateToken(id, expiresIn);
+  const token = await JwtHelpers.generateToken(id, expiresIn);
+  req.session.token = token;
 
-  return res.status(201).json({ username: name, email: mail, id });
+  return res.status(201).json({
+    username: name, email: mail, id, token, message: 'User successfully created.', rememberMe,
+  });
 };
 
-authController.singIn = (req, res) => {
-  const { email, password, remember } = req.body;
+authController.login = (req, res) => {
+  const { email, password, rememberMe } = req.body;
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -51,9 +54,12 @@ authController.singIn = (req, res) => {
       if (!validatePassword) {
         return res.status(401).json({ error: 'Invalid password' });
       }
-      const expiresIn = remember ? authConfig.prolongedExpiresIn : authConfig.expiresIn;
-      req.session.token = await JwtHelpers.generateToken(id, expiresIn);
-      return res.status(200).json({ id, username, email: mail });
+      const expiresIn = rememberMe ? authConfig.prolongedExpiresIn : authConfig.expiresIn;
+      const token = await JwtHelpers.generateToken(id, expiresIn);
+      req.session.token = token;
+      return res.status(200).json({
+        id, username, email: mail, token, message: 'Successfully logged in', rememberMe,
+      });
     }
     return res.status(404).json({ error: 'User with this email not found' });
   });

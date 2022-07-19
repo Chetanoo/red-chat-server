@@ -6,7 +6,7 @@ const checkDuplicates = require('../middlewares/checkDuplicates');
 const authRouter = express.Router();
 
 authRouter.post(
-  '/signup',
+  '/register',
   [
     body('username')
       .exists()
@@ -37,10 +37,10 @@ authRouter.post(
       .isLength({ min: 5, max: 99 })
       .withMessage('Password have to be at least 5 symbols'),
   ],
-  authController.signUp,
+  authController.register,
 );
 authRouter.post(
-  '/signin',
+  '/login',
   [
     body('email')
       .exists()
@@ -57,7 +57,7 @@ authRouter.post(
       .isEmpty()
       .withMessage('Password is required'),
   ],
-  authController.singIn,
+  authController.login,
 );
 authRouter.get('/logout', authController.logout);
 
